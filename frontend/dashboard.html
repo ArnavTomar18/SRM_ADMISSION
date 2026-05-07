@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Dashboard | SRM Admission Portal</title>
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+<nav class="navbar"><div class="nav-inner">
+  <a href="index.html" class="nav-logo"><div class="nav-logo-icon">SRM</div><div class="nav-logo-text">SRM<span>IST</span><span class="nav-logo-sub">Admission Portal</span></div></a>
+  <div class="nav-actions" id="nav-auth-area"></div>
+</div></nav>
+
+<div class="dashboard-layout">
+  <aside class="sidebar">
+    <div class="sidebar-user">
+      <div class="sidebar-avatar" id="sidebar-avatar">S</div>
+      <div class="sidebar-user-name" id="sidebar-name">Loading...</div>
+      <div class="sidebar-user-id" id="sidebar-id">ID: -</div>
+    </div>
+    <div class="sidebar-section-label">Application</div>
+    <ul class="sidebar-nav">
+      <li><a href="dashboard.html" class="active">Dashboard</a></li>
+      <li><a href="counselling.html">Counselling</a></li>
+      <li><a href="allocation.html">Seat Allocation</a></li>
+      <li><a href="payment.html">Payment</a></li>
+    </ul>
+  </aside>
+
+  <main class="main-content">
+    <div class="app-shell">
+      <section class="app-hero">
+        <div class="app-hero-content">
+          <div>
+            <div class="app-kicker">Student Workspace</div>
+            <h1 class="app-title">Application Dashboard</h1>
+            <p class="app-copy">Complete your profile in order: add marks, save preferences, allocate your seat, then confirm admission with payment.</p>
+          </div>
+          <div class="app-status-card">
+            <div class="app-status-label">Current Focus</div>
+            <div class="app-status-value">Profile Completion</div>
+            <div class="app-status-meta">Keep your academics and exam score up to date so counselling and seat allocation can proceed smoothly.</div>
+          </div>
+        </div>
+      </section>
+
+      <section class="app-progress">
+        <div class="progress-step is-active"><div class="progress-step-num">1</div><div class="progress-step-title">Academics</div><div class="progress-step-copy">Add school marks and exam score.</div></div>
+        <div class="progress-step"><div class="progress-step-num">2</div><div class="progress-step-title">Preferences</div><div class="progress-step-copy">Rank your campus and program choices.</div></div>
+        <div class="progress-step"><div class="progress-step-num">3</div><div class="progress-step-title">Allocation</div><div class="progress-step-copy">Review seat result and admission status.</div></div>
+        <div class="progress-step"><div class="progress-step-num">4</div><div class="progress-step-title">Payment</div><div class="progress-step-copy">Pay fees to confirm your seat.</div></div>
+      </section>
+
+      <div id="alert-area" class="hidden"></div>
+      <div id="summary"></div>
+
+      <div class="app-grid">
+        <div class="app-main">
+          <div class="dashboard-panel">
+            <div class="dashboard-panel-header">
+              <div>
+                <div class="dashboard-panel-kicker">Step 1</div>
+                <h3>Academic Marks</h3>
+                <p class="dashboard-panel-copy">Seat allocation uses your PCM performance. Enter your subjects carefully and save them anytime.</p>
+              </div>
+              <div class="surface-chip">Required</div>
+            </div>
+            <div id="marks-saved-view" class="saved-state"></div>
+            <form id="marks-form">
+              <div class="form-row">
+                <div class="form-group"><label for="physics">Physics</label><input id="physics" class="form-control" type="number" min="0" max="100" step="0.01" required /></div>
+                <div class="form-group"><label for="chemistry">Chemistry</label><input id="chemistry" class="form-control" type="number" min="0" max="100" step="0.01" required /></div>
+                <div class="form-group"><label for="mathematics">Mathematics</label><input id="mathematics" class="form-control" type="number" min="0" max="100" step="0.01" required /></div>
+                <div class="form-group"><label for="english">English</label><input id="english" class="form-control" type="number" min="0" max="100" step="0.01" /></div>
+              </div>
+              <button id="marks-btn" type="submit" class="btn btn-primary">Save Marks</button>
+            </form>
+          </div>
+
+          <div class="dashboard-panel">
+            <div class="dashboard-panel-header">
+              <div>
+                <div class="dashboard-panel-kicker">Step 1 Optional</div>
+                <h3>Entrance Exam Score</h3>
+                <p class="dashboard-panel-copy">If you took SRMJEEE or another accepted test, add it here to keep your profile complete.</p>
+              </div>
+              <div class="surface-chip">Optional</div>
+            </div>
+            <div id="exam-saved-view" class="saved-state"></div>
+            <form id="exam-form">
+              <div class="form-row">
+                <div class="form-group"><label for="examName">Exam Name</label><input id="examName" class="form-control" type="text" value="SRMJEEE" /></div>
+                <div class="form-group"><label for="score">Score</label><input id="score" class="form-control" type="number" min="0" step="0.01" /></div>
+                <div class="form-group"><label for="rank">Rank</label><input id="rank" class="form-control" type="number" min="1" step="1" /></div>
+              </div>
+              <button id="exam-btn" type="submit" class="btn btn-outline">Save Exam</button>
+            </form>
+          </div>
+        </div>
+
+        <aside class="app-side">
+          <div class="dashboard-panel">
+            <div class="dashboard-panel-kicker">Checklist</div>
+            <h3>What to do next</h3>
+            <div class="action-list">
+              <div class="action-item"><span class="info-key">1.</span><span class="info-value">Save your academic marks accurately.</span></div>
+              <div class="action-item"><span class="info-key">2.</span><span class="info-value">Move to Counselling and rank your preferred programs.</span></div>
+              <div class="action-item"><span class="info-key">3.</span><span class="info-value">Review your seat allocation result before paying fees.</span></div>
+            </div>
+          </div>
+
+          <div class="dashboard-panel">
+            <div class="dashboard-panel-kicker">Guidance</div>
+            <h3>Submission tips</h3>
+            <div class="info-list">
+              <div class="info-item"><span class="info-key">Marks entry</span><span class="info-value">Use final verified scores</span></div>
+              <div class="info-item"><span class="info-key">Entrance exam</span><span class="info-value">Score can be added later</span></div>
+              <div class="info-item"><span class="info-key">Updates</span><span class="info-value">Saving again will update details</span></div>
+            </div>
+          </div>
+        </aside>
+      </div>
+    </div>
+  </main>
+</div>
+
+<script src="js/script.js"></script>
+<script>
+Auth.requireAuth();
+let savedMarks = null;
+let savedExam = null;
+
+function renderSavedMarks() {
+  const box = document.getElementById('marks-saved-view');
+  if (!savedMarks) {
+    box.style.display = 'none';
+    box.innerHTML = '';
+    return;
+  }
+
+  box.style.display = 'block';
+  box.innerHTML = `
+    <strong>Saved Academic Marks</strong>
+    <div class="saved-state-grid">
+      <div class="saved-stat"><div class="saved-stat-label">Physics</div><div class="saved-stat-value">${savedMarks.physics}</div></div>
+      <div class="saved-stat"><div class="saved-stat-label">Chemistry</div><div class="saved-stat-value">${savedMarks.chemistry}</div></div>
+      <div class="saved-stat"><div class="saved-stat-label">Mathematics</div><div class="saved-stat-value">${savedMarks.mathematics}</div></div>
+      <div class="saved-stat"><div class="saved-stat-label">English</div><div class="saved-stat-value">${savedMarks.english ?? '-'}</div></div>
+    </div>
+  `;
+}
+
+function renderSavedExam() {
+  const box = document.getElementById('exam-saved-view');
+  if (!savedExam) {
+    box.style.display = 'none';
+    box.innerHTML = '';
+    return;
+  }
+
+  box.style.display = 'block';
+  box.innerHTML = `
+    <strong>Saved Entrance Exam</strong>
+    <div class="saved-state-grid">
+      <div class="saved-stat"><div class="saved-stat-label">Exam</div><div class="saved-stat-value">${savedExam.exam_name}</div></div>
+      <div class="saved-stat"><div class="saved-stat-label">Score</div><div class="saved-stat-value">${savedExam.score}</div></div>
+      <div class="saved-stat"><div class="saved-stat-label">Rank</div><div class="saved-stat-value">${savedExam.exam_rank ?? '-'}</div></div>
+    </div>
+  `;
+}
+
+async function loadSavedForms(studentId) {
+  const [marksResult, examResult] = await Promise.all([
+    apiRequest('GET', `/marks/${studentId}`, null, true).catch(() => null),
+    apiRequest('GET', `/exam/${studentId}`, null, true).catch(() => null)
+  ]);
+
+  savedMarks = marksResult;
+  savedExam = examResult;
+
+  if (savedMarks) {
+    document.getElementById('physics').value = savedMarks.physics ?? '';
+    document.getElementById('chemistry').value = savedMarks.chemistry ?? '';
+    document.getElementById('mathematics').value = savedMarks.mathematics ?? '';
+    document.getElementById('english').value = savedMarks.english ?? '';
+  }
+
+  if (savedExam) {
+    document.getElementById('examName').value = savedExam.exam_name ?? 'SRMJEEE';
+    document.getElementById('score').value = savedExam.score ?? '';
+    document.getElementById('rank').value = savedExam.exam_rank ?? '';
+  }
+
+  renderSavedMarks();
+  renderSavedExam();
+}
+
+async function loadDashboard() {
+  const student = Auth.student();
+  const id = getStudentId(student);
+
+  try {
+    const [profile, allocationResult, paymentResult, preferences] = await Promise.all([
+      apiRequest('GET', `/student/${id}`, null, true),
+      apiRequest('GET', `/student/${id}/allocation`, null, true).catch(() => null),
+      apiRequest('GET', `/student/${id}/payments`, null, true).catch(() => null),
+      apiRequest('GET', `/student/${id}/preferences`, null, true)
+    ]);
+
+    const allocation = allocationResult || null;
+    const latestPayment = paymentResult || null;
+    const preferencesList = Array.isArray(preferences) ? preferences : [];
+
+    const currentStep = latestPayment ? '4' : allocation ? '3' : preferencesList.length ? '2' : '1';
+    document.getElementById('summary').innerHTML = `
+      <section class="app-grid">
+        <div class="app-main">
+          <div class="metrics-grid">
+            <div class="metric-card"><div class="metric-label">Applicant</div><div class="metric-value">${profile.full_name}</div><div class="metric-copy">Current step ${currentStep} of 4</div></div>
+            <div class="metric-card"><div class="metric-label">Preferences Saved</div><div class="metric-value">${preferencesList.length}</div><div class="metric-copy">Ranked choices ready for counselling</div></div>
+            <div class="metric-card"><div class="metric-label">Seat Allocation</div><div class="metric-value">${allocation ? badgeHtml(allocation.status) : 'Not allocated'}</div><div class="metric-copy">${allocation ? allocation.program_name : 'Run allocation after saving preferences'}</div></div>
+            <div class="metric-card"><div class="metric-label">Latest Payment</div><div class="metric-value">${latestPayment ? badgeHtml(latestPayment.status) : 'Pending'}</div><div class="metric-copy">${latestPayment ? formatCurrency(latestPayment.amount) : 'Payment starts after seat allocation'}</div></div>
+          </div>
+
+          <div class="dashboard-panel">
+            <div class="dashboard-panel-kicker">Profile</div>
+            <h3>Student details</h3>
+            <div class="info-list">
+              <div class="info-item"><span class="info-key">Name</span><span class="info-value">${profile.full_name}</span></div>
+              <div class="info-item"><span class="info-key">Email</span><span class="info-value">${profile.email}</span></div>
+              <div class="info-item"><span class="info-key">Phone</span><span class="info-value">${profile.phone || '-'}</span></div>
+              <div class="info-item"><span class="info-key">Preferred Campus</span><span class="info-value">${profile.preferred_campus || '-'}</span></div>
+              <div class="info-item"><span class="info-key">Preferred Program</span><span class="info-value">${profile.preferred_program || '-'}</span></div>
+              <div class="info-item"><span class="info-key">Registered</span><span class="info-value">${formatDate(profile.created_at)}</span></div>
+            </div>
+          </div>
+        </div>
+
+        <aside class="app-side">
+          <div class="dashboard-panel">
+            <div class="dashboard-panel-kicker">Allocation Snapshot</div>
+            <h3>${allocation ? 'Current result' : 'No allocation yet'}</h3>
+            ${allocation ? `
+              <div class="info-list">
+                <div class="info-item"><span class="info-key">Campus</span><span class="info-value">${allocation.campus_name}</span></div>
+                <div class="info-item"><span class="info-key">Program</span><span class="info-value">${allocation.program_name}</span></div>
+                <div class="info-item"><span class="info-key">Status</span><span class="info-value">${badgeHtml(allocation.status)}</span></div>
+                <div class="info-item"><span class="info-key">Aggregate</span><span class="info-value">${allocation.aggregate_score || '-'}</span></div>
+                <div class="info-item"><span class="info-key">Allocated At</span><span class="info-value">${formatDate(allocation.allocation_date)}</span></div>
+              </div>
+            ` : `<p class="dashboard-panel-copy">Once marks and preferences are saved, run seat allocation from the Counselling page to view the result here.</p>`}
+          </div>
+
+          <div class="dashboard-panel">
+            <div class="dashboard-panel-kicker">Payment Snapshot</div>
+            <h3>${latestPayment ? 'Latest payment' : 'Awaiting payment'}</h3>
+            ${latestPayment ? `
+              <div class="info-list">
+                <div class="info-item"><span class="info-key">Status</span><span class="info-value">${badgeHtml(latestPayment.status)}</span></div>
+                <div class="info-item"><span class="info-key">Amount</span><span class="info-value">${formatCurrency(latestPayment.amount)}</span></div>
+                <div class="info-item"><span class="info-key">Method</span><span class="info-value">${latestPayment.payment_method}</span></div>
+                <div class="info-item"><span class="info-key">Reference</span><span class="info-value">${latestPayment.payment_reference}</span></div>
+              </div>
+            ` : `<p class="dashboard-panel-copy">Payment becomes available after you receive an allocated or confirmed seat.</p>`}
+          </div>
+        </aside>
+      </section>`;
+  } catch (error) {
+    showAlert('alert-area', 'error', error.message);
+  }
+
+  await loadSavedForms(id);
+}
+
+async function saveMarks(event) {
+  event.preventDefault();
+  const studentId = getStudentId(Auth.student());
+  const btn = document.getElementById('marks-btn');
+
+  setLoading(btn, true, 'Saving...');
+  try {
+    await apiRequest('POST', '/addMarks', {
+      studentId,
+      physics: Number(document.getElementById('physics').value),
+      chemistry: Number(document.getElementById('chemistry').value),
+      mathematics: Number(document.getElementById('mathematics').value),
+      english: document.getElementById('english').value ? Number(document.getElementById('english').value) : null
+    }, true);
+    savedMarks = {
+      physics: Number(document.getElementById('physics').value),
+      chemistry: Number(document.getElementById('chemistry').value),
+      mathematics: Number(document.getElementById('mathematics').value),
+      english: document.getElementById('english').value ? Number(document.getElementById('english').value) : null
+    };
+    renderSavedMarks();
+    showAlert('alert-area', 'success', 'Academic marks saved. You can edit and save again anytime without creating duplicates.');
+  } catch (error) {
+    showAlert('alert-area', 'error', error.message);
+  } finally {
+    setLoading(btn, false);
+  }
+}
+
+async function saveExam(event) {
+  event.preventDefault();
+  const studentId = getStudentId(Auth.student());
+  const scoreValue = document.getElementById('score').value;
+  const btn = document.getElementById('exam-btn');
+
+  if (!scoreValue) {
+    showAlert('alert-area', 'error', 'Enter an exam score before saving.');
+    return;
+  }
+
+  setLoading(btn, true, 'Saving...');
+  try {
+    await apiRequest('POST', '/addExam', {
+      studentId,
+      examName: document.getElementById('examName').value || 'SRMJEEE',
+      score: Number(scoreValue),
+      rank: document.getElementById('rank').value ? Number(document.getElementById('rank').value) : null
+    }, true);
+    savedExam = {
+      exam_name: document.getElementById('examName').value || 'SRMJEEE',
+      score: Number(scoreValue),
+      exam_rank: document.getElementById('rank').value ? Number(document.getElementById('rank').value) : null
+    };
+    renderSavedExam();
+    showAlert('alert-area', 'success', 'Entrance exam saved. Saving again will update it, not create a duplicate.');
+  } catch (error) {
+    showAlert('alert-area', 'error', error.message);
+  } finally {
+    setLoading(btn, false);
+  }
+}
+
+document.getElementById('marks-form').addEventListener('submit', saveMarks);
+document.getElementById('exam-form').addEventListener('submit', saveExam);
+loadDashboard();
+</script>
+</body>
+</html>

@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Seat Allocation | SRM Admission Portal</title>
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+<nav class="navbar"><div class="nav-inner">
+  <a href="index.html" class="nav-logo"><div class="nav-logo-icon">SRM</div><div class="nav-logo-text">SRM<span>IST</span><span class="nav-logo-sub">Admission Portal</span></div></a>
+  <div class="nav-actions" id="nav-auth-area"></div>
+</div></nav>
+
+<div class="dashboard-layout">
+  <aside class="sidebar">
+    <div class="sidebar-user">
+      <div class="sidebar-avatar" id="sidebar-avatar">S</div>
+      <div class="sidebar-user-name" id="sidebar-name">Loading...</div>
+      <div class="sidebar-user-id" id="sidebar-id">ID: -</div>
+    </div>
+    <div class="sidebar-section-label">Application</div>
+    <ul class="sidebar-nav">
+      <li><a href="dashboard.html">Dashboard</a></li>
+      <li><a href="counselling.html">Counselling</a></li>
+      <li><a href="allocation.html" class="active">Seat Allocation</a></li>
+      <li><a href="payment.html">Payment</a></li>
+    </ul>
+  </aside>
+
+  <main class="main-content">
+    <div class="allocation-shell">
+      <section class="app-hero">
+        <div class="app-hero-content">
+          <div>
+            <div class="app-kicker">Allocation Result</div>
+            <h1 class="app-title">Seat Allocation</h1>
+            <p class="app-copy">Review the result of your ranked preferences, check your campus and program, and move to payment when your seat is ready.</p>
+          </div>
+          <div class="app-status-card">
+            <div class="app-status-label">Current Focus</div>
+            <div class="app-status-value">Review Outcome</div>
+            <div class="app-status-meta">This page reflects the latest allocation result based on your saved academics and counselling preferences.</div>
+          </div>
+        </div>
+      </section>
+      <div id="alert-area" class="hidden"></div>
+      <div id="allocation-card"></div>
+    </div>
+  </main>
+</div>
+
+<script src="js/script.js"></script>
+<script>
+Auth.requireAuth();
+
+async function loadAllocation() {
+  const studentId = getStudentId(Auth.student());
+  try {
+    const allocation = await apiRequest('GET', `/student/${studentId}/allocation`, null, true);
+    const el = document.getElementById('allocation-card');
+
+    if (!allocation) {
+      el.innerHTML = `
+        <section class="state-card state-empty">
+          <div class="state-card-content">
+            <div>
+              <div class="state-card-kicker">Awaiting Result</div>
+              <h2 class="state-card-title">No allocation yet</h2>
+              <p class="state-card-copy">Go to Dashboard and add marks, then open Counselling, save your preferences, and click Allocate Seat to generate your result.</p>
+              <div class="page-actions-inline">
+                <a href="dashboard.html" class="btn btn-primary">Open Dashboard</a>
+                <a href="counselling.html" class="btn btn-outline">Go to Counselling</a>
+              </div>
+            </div>
+            <div class="state-aside">
+              <div class="state-aside-card"><div class="state-aside-label">Step 1</div><div class="state-aside-value">Marks required</div></div>
+              <div class="state-aside-card"><div class="state-aside-label">Step 2</div><div class="state-aside-value">Preferences must be saved</div></div>
+            </div>
+          </div>
+        </section>`;
+      return;
+    }
+
+    el.innerHTML = `
+      <section class="state-card">
+        <div class="state-card-content">
+          <div>
+            <div class="state-card-kicker">Allocation Summary</div>
+            <h2 class="state-card-title">${allocation.program_name}</h2>
+            <p class="state-card-copy">Your latest seat processing result is shown below. If the seat is allocated, continue to payment to confirm admission.</p>
+            <p class="state-note">${String(allocation.status).toUpperCase() === 'CONFIRMED' ? 'Your seat is confirmed. You can proceed to payment or review the receipt.' : 'If this shows allocated, complete payment next to confirm your seat.'}</p>
+          </div>
+          <div class="state-aside">
+            <div class="state-aside-card"><div class="state-aside-label">Status</div><div class="state-aside-value">${badgeHtml(allocation.status)}</div></div>
+            <div class="state-aside-card"><div class="state-aside-label">Campus</div><div class="state-aside-value">${allocation.campus_name}</div></div>
+          </div>
+        </div>
+      </section>
+      <section class="receipt-grid">
+        <div class="receipt-card"><div class="receipt-label">Program</div><div class="receipt-value">${allocation.program_name}</div></div>
+        <div class="receipt-card"><div class="receipt-label">Campus</div><div class="receipt-value">${allocation.campus_name}</div></div>
+        <div class="receipt-card"><div class="receipt-label">Aggregate Score</div><div class="receipt-value">${allocation.aggregate_score || '-'}</div></div>
+        <div class="receipt-card"><div class="receipt-label">Allocated At</div><div class="receipt-value">${formatDate(allocation.allocation_date)}</div></div>
+      </section>
+      <div class="page-actions-inline">
+        <a href="counselling.html" class="btn btn-ghost">Edit Preferences</a>
+        <a href="payment.html" class="btn btn-primary">Continue to Payment</a>
+      </div>`;
+  } catch (error) {
+    showAlert('alert-area', 'error', error.message);
+  }
+}
+
+loadAllocation();
+</script>
+</body>
+</html>

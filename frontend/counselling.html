@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Counselling | SRM Admission Portal</title>
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+<nav class="navbar"><div class="nav-inner">
+  <a href="index.html" class="nav-logo"><div class="nav-logo-icon">SRM</div><div class="nav-logo-text">SRM<span>IST</span><span class="nav-logo-sub">Admission Portal</span></div></a>
+  <div class="nav-actions" id="nav-auth-area"></div>
+</div></nav>
+
+<div class="dashboard-layout">
+  <aside class="sidebar">
+    <div class="sidebar-user">
+      <div class="sidebar-avatar" id="sidebar-avatar">S</div>
+      <div class="sidebar-user-name" id="sidebar-name">Loading...</div>
+      <div class="sidebar-user-id" id="sidebar-id">ID: -</div>
+    </div>
+    <div class="sidebar-section-label">Application</div>
+    <ul class="sidebar-nav">
+      <li><a href="dashboard.html">Dashboard</a></li>
+      <li><a href="counselling.html" class="active">Counselling</a></li>
+      <li><a href="allocation.html">Seat Allocation</a></li>
+      <li><a href="payment.html">Payment</a></li>
+    </ul>
+  </aside>
+
+  <main class="main-content">
+    <div class="app-shell">
+      <section class="app-hero">
+        <div class="app-hero-content">
+          <div>
+            <div class="app-kicker">Preference Locking</div>
+            <h1 class="app-title">Counselling Preferences</h1>
+            <p class="app-copy">Rank the programs you want most. Your order matters, because allocation checks the highest eligible choice first.</p>
+          </div>
+          <div class="app-status-card">
+            <div class="app-status-label">Current Focus</div>
+            <div class="app-status-value">Save Ranked Choices</div>
+            <div class="app-status-meta">You can add multiple options, then run allocation when your list is ready.</div>
+          </div>
+        </div>
+      </section>
+
+      <section class="app-progress">
+        <div class="progress-step is-done"><div class="progress-step-num">1</div><div class="progress-step-title">Academics</div><div class="progress-step-copy">Marks should already be saved.</div></div>
+        <div class="progress-step is-active"><div class="progress-step-num">2</div><div class="progress-step-title">Preferences</div><div class="progress-step-copy">Rank campus and program choices.</div></div>
+        <div class="progress-step"><div class="progress-step-num">3</div><div class="progress-step-title">Allocation</div><div class="progress-step-copy">Check which seat is allotted.</div></div>
+        <div class="progress-step"><div class="progress-step-num">4</div><div class="progress-step-title">Payment</div><div class="progress-step-copy">Confirm your seat after allocation.</div></div>
+      </section>
+
+      <div id="alert-area" class="hidden"></div>
+
+      <div class="app-grid">
+        <div class="app-main">
+          <div class="dashboard-panel">
+            <div class="dashboard-panel-header">
+              <div>
+                <div class="dashboard-panel-kicker">Selection Board</div>
+                <h3>Build your priority list</h3>
+                <p class="dashboard-panel-copy">Start with your top choice first. Each saved rank gives allocation a clear priority order to follow.</p>
+              </div>
+              <div class="surface-chip">Step 2 of 4</div>
+            </div>
+            <div class="info-banner">
+              <strong>What to do here:</strong> save academic marks first, add one or more program preferences in priority order, save them, and then click <strong>Allocate Seat</strong>.
+            </div>
+            <div id="preference-list" class="pref-list"></div>
+            <div class="panel-actions">
+              <button class="btn btn-ghost" onclick="addPreferenceRow()">Add Preference</button>
+              <button id="save-btn" class="btn btn-primary" onclick="savePreferences()">Save Preferences</button>
+              <button id="allocate-btn" class="btn btn-outline" onclick="allocateSeat()">Allocate Seat</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- <aside class="app-side">
+          <div class="dashboard-panel">
+            <div class="dashboard-panel-kicker">How ranking works</div>
+            <h3>Strategy tips</h3>
+            <div class="action-list">
+              <div class="action-item"><span class="info-key">1.</span><span class="info-value">Put your dream program first.</span></div>
+              <div class="action-item"><span class="info-key">2.</span><span class="info-value">Add safer backup options below it.</span></div>
+              <div class="action-item"><span class="info-key">3.</span><span class="info-value">Save before running seat allocation.</span></div>
+            </div>
+          </div>
+
+          <div class="dashboard-panel">
+            <div class="dashboard-panel-kicker">Before you allocate</div>
+            <h3>Quick checklist</h3>
+            <div class="info-list">
+              <div class="info-item"><span class="info-key">Academic marks</span><span class="info-value">Saved on Dashboard</span></div>
+              <div class="info-item"><span class="info-key">Minimum choices</span><span class="info-value">At least one valid preference</span></div>
+              <div class="info-item"><span class="info-key">Next step</span><span class="info-value">Open Seat Allocation page</span></div>
+            </div>
+          </div>
+        </aside> -->
+      </div>
+    </div>
+  </main>
+</div>
+
+<script src="js/script.js"></script>
+<script>
+Auth.requireAuth();
+const studentId = getStudentId(Auth.student());
+let campuses = [];
+let programs = [];
+
+function optionHtml(items, valueKey, labelKey, selectedValue) {
+  return items.map((item) => `<option value="${item[valueKey]}" ${String(item[valueKey]) === String(selectedValue) ? 'selected' : ''}>${item[labelKey]}</option>`).join('');
+}
+
+function getAllProgramOptions() {
+  return programs.map((program) => ({
+    id: program.id,
+    name: program.name
+  }));
+}
+
+function renderCampusOptions(campusSelect, selectedCampusId = '') {
+  campusSelect.innerHTML = `
+    <option value="">Select Campus</option>
+    ${optionHtml(campuses, 'id', 'name', selectedCampusId)}
+  `;
+
+  if (!selectedCampusId && campuses.length) {
+    campusSelect.value = String(campuses[0].id);
+  }
+}
+
+function renderProgramOptions(programSelect, selectedProgramId = '') {
+  const filteredPrograms = getAllProgramOptions();
+  programSelect.innerHTML = `
+    <option value="">Select Program</option>
+    ${optionHtml(filteredPrograms, 'id', 'name', selectedProgramId)}
+  `;
+
+  if (!selectedProgramId && filteredPrograms.length) {
+    programSelect.value = String(filteredPrograms[0].id);
+  }
+}
+
+function refreshPreferenceOrder() {
+  [...document.querySelectorAll('#preference-list .pref-row')].forEach((row, index) => {
+    const badge = row.querySelector('.pref-order');
+    if (badge) {
+      badge.textContent = String(index + 1);
+    }
+  });
+}
+
+function addPreferenceRow(pref = {}) {
+  const container = document.getElementById('preference-list');
+  const nextOrder = container.children.length + 1;
+  const row = document.createElement('div');
+  row.className = 'pref-row';
+  row.innerHTML = `
+    <div class="form-group">
+      <div class="pref-order">${nextOrder}</div>
+      <label>Campus</label>
+      <select class="form-control pref-campus"></select>
+    </div>
+    <div class="form-group">
+      <label>Program</label>
+      <select class="form-control pref-program"></select>
+    </div>
+    <div class="form-group pref-remove-wrap">
+      <button type="button" class="btn btn-ghost" onclick="this.closest('.pref-row').remove(); refreshPreferenceOrder();">Remove</button>
+    </div>`;
+  const campusSelect = row.querySelector('.pref-campus');
+  const programSelect = row.querySelector('.pref-program');
+  renderCampusOptions(campusSelect, pref.campus_id || '');
+  renderProgramOptions(programSelect, pref.program_id || '');
+  container.appendChild(row);
+  refreshPreferenceOrder();
+}
+
+function getCampusIdForProgram(programId) {
+  const selectedProgram = programs.find((program) => String(program.id) === String(programId));
+  return selectedProgram ? Number(selectedProgram.campus_id) : 0;
+}
+
+async function loadPreferences() {
+  try {
+    const [campusData, programData, existing] = await Promise.all([
+      apiRequest('GET', '/campuses', null, true),
+      apiRequest('GET', '/programs', null, true),
+      apiRequest('GET', `/student/${studentId}/preferences`, null, true)
+    ]);
+
+    campuses = campusData;
+    programs = programData;
+    document.getElementById('preference-list').innerHTML = '';
+    clearAlert('alert-area');
+
+    if (Array.isArray(existing) && existing.length) {
+      existing.forEach((pref) => addPreferenceRow(pref));
+    } else {
+      addPreferenceRow();
+      addPreferenceRow();
+    }
+  } catch (error) {
+    showAlert('alert-area', 'error', error.message);
+  }
+}
+
+async function savePreferences() {
+  const btn = document.getElementById('save-btn');
+  const rows = [...document.querySelectorAll('#preference-list .pref-row')];
+  const choices = rows.map((row, index) => ({
+    preference_rank: index + 1,
+    program_id: Number(row.querySelector('.pref-program').value)
+  })).map((choice) => ({
+    ...choice,
+    campus_id: getCampusIdForProgram(choice.program_id)
+  })).filter((choice) => choice.preference_rank > 0 && choice.campus_id > 0 && choice.program_id > 0);
+
+  if (!choices.length) {
+    showAlert('alert-area', 'error', 'Add at least one valid campus and program preference.');
+    return;
+  }
+
+  setLoading(btn, true, 'Saving...');
+  try {
+    await apiRequest('POST', `/student/${studentId}/preferences`, { choices }, true);
+    showAlert('alert-area', 'success', 'Preferences saved successfully.');
+  } catch (error) {
+    showAlert('alert-area', 'error', error.message);
+  } finally {
+    setLoading(btn, false);
+  }
+}
+
+async function allocateSeat() {
+  const btn = document.getElementById('allocate-btn');
+  setLoading(btn, true, 'Allocating...');
+  try {
+    const result = await apiRequest('POST', `/student/${studentId}/allocate`, {}, true);
+    if (result && result.program_name) {
+      showAlert('alert-area', 'success', `Seat processed for ${result.program_name}. Open Seat Allocation to view the result and then go to Payment if it is confirmed.`);
+    } else {
+      showAlert('alert-area', 'success', 'Allocation request processed. Open Seat Allocation to view the result.');
+    }
+  } catch (error) {
+    if (String(error.message).toLowerCase().includes('academic marks')) {
+      showAlert('alert-area', 'error', 'Academic marks not found. Go to Dashboard first, fill Physics, Chemistry, Mathematics marks, then come back here.');
+    } else {
+      showAlert('alert-area', 'error', error.message);
+    }
+  } finally {
+    setLoading(btn, false);
+  }
+}
+
+loadPreferences();
+</script>
+</body>
+</html>

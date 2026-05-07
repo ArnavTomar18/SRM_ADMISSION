@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Payment | SRM Admission Portal</title>
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+<nav class="navbar"><div class="nav-inner">
+  <a href="index.html" class="nav-logo"><div class="nav-logo-icon">SRM</div><div class="nav-logo-text">SRM<span>IST</span><span class="nav-logo-sub">Admission Portal</span></div></a>
+  <div class="nav-actions" id="nav-auth-area"></div>
+</div></nav>
+
+<div class="dashboard-layout">
+  <aside class="sidebar">
+    <div class="sidebar-user">
+      <div class="sidebar-avatar" id="sidebar-avatar">S</div>
+      <div class="sidebar-user-name" id="sidebar-name">Loading...</div>
+      <div class="sidebar-user-id" id="sidebar-id">ID: -</div>
+    </div>
+    <div class="sidebar-section-label">Application</div>
+    <ul class="sidebar-nav">
+      <li><a href="dashboard.html">Dashboard</a></li>
+      <li><a href="counselling.html">Counselling</a></li>
+      <li><a href="allocation.html">Seat Allocation</a></li>
+      <li><a href="payment.html" class="active">Payment</a></li>
+    </ul>
+  </aside>
+
+  <main class="main-content">
+    <div class="payment-shell">
+      <section class="app-hero">
+        <div class="app-hero-content">
+          <div>
+            <div class="app-kicker">Admission Confirmation</div>
+            <h1 class="app-title">Fee Payment</h1>
+            <p class="app-copy">Finalize your admission by completing the fee payment for the allotted seat. This step records and confirms the transaction.</p>
+          </div>
+          <div class="app-status-card">
+            <div class="app-status-label">Current Focus</div>
+            <div class="app-status-value">Secure Your Seat</div>
+            <div class="app-status-meta">Payment becomes available once the allocation result is ready and eligible for confirmation.</div>
+          </div>
+        </div>
+      </section>
+      <div id="alert-area" class="hidden"></div>
+      <div id="payment-content"></div>
+    </div>
+  </main>
+</div>
+
+<script src="js/script.js"></script>
+<script>
+Auth.requireAuth();
+const studentId = getStudentId(Auth.student());
+
+async function renderPaymentPage() {
+  try {
+    const [allocation, payment] = await Promise.all([
+      apiRequest('GET', `/student/${studentId}/allocation`, null, true).catch(() => null),
+      apiRequest('GET', `/student/${studentId}/payments`, null, true).catch(() => null)
+    ]);
+
+    const latest = payment || null;
+    const container = document.getElementById('payment-content');
+
+    if (latest) {
+      container.innerHTML = `
+        <section class="state-card">
+          <div class="state-card-content">
+            <div>
+              <div class="state-card-kicker">Payment Recorded</div>
+              <h2 class="state-card-title">Latest payment received</h2>
+              <p class="state-card-copy">Your most recent payment has been recorded in the admission system. Keep the reference handy for future support.</p>
+            </div>
+            <div class="state-aside">
+              <div class="state-aside-card"><div class="state-aside-label">Status</div><div class="state-aside-value">${badgeHtml(latest.status)}</div></div>
+              <div class="state-aside-card"><div class="state-aside-label">Amount</div><div class="state-aside-value">${formatCurrency(latest.amount)}</div></div>
+            </div>
+          </div>
+        </section>
+        <section class="receipt-grid">
+          <div class="receipt-card"><div class="receipt-label">Payment Method</div><div class="receipt-value">${latest.payment_method}</div></div>
+          <div class="receipt-card"><div class="receipt-label">Reference</div><div class="receipt-value">${latest.payment_reference}</div></div>
+          <div class="receipt-card"><div class="receipt-label">Paid At</div><div class="receipt-value">${formatDate(latest.paid_at)}</div></div>
+          <div class="receipt-card"><div class="receipt-label">Admission Status</div><div class="receipt-value">${badgeHtml(latest.status)}</div></div>
+        </section>`;
+      return;
+    }
+
+    const allocationStatus = allocation ? String(allocation.status).toUpperCase() : '';
+
+    if (!allocation || !['ALLOCATED', 'CONFIRMED'].includes(allocationStatus)) {
+      container.innerHTML = `
+        <section class="state-card state-empty">
+          <div class="state-card-content">
+            <div>
+              <div class="state-card-kicker">Payment Locked</div>
+              <h2 class="state-card-title">Payment unavailable</h2>
+              <p class="state-card-copy">You need an allocated or confirmed seat before paying fees. Complete Dashboard and Counselling first, then check Seat Allocation.</p>
+              <div class="page-actions-inline">
+                <a href="dashboard.html" class="btn btn-primary">Open Dashboard</a>
+                <a href="allocation.html" class="btn btn-outline">View Allocation</a>
+              </div>
+            </div>
+            <div class="state-aside">
+              <div class="state-aside-card"><div class="state-aside-label">Requirement</div><div class="state-aside-value">Allocated or confirmed seat</div></div>
+              <div class="state-aside-card"><div class="state-aside-label">Next step</div><div class="state-aside-value">Run allocation after saving preferences</div></div>
+            </div>
+          </div>
+        </section>`;
+      return;
+    }
+
+    container.innerHTML = `
+      <section class="state-card">
+        <div class="state-card-content">
+          <div>
+            <div class="state-card-kicker">Ready to Confirm</div>
+            <h2 class="state-card-title">Pay for ${allocation.program_name}</h2>
+            <p class="state-card-copy">Complete the admission fee to secure your allotted seat at ${allocation.campus_name}.</p>
+          </div>
+          <div class="state-aside">
+            <div class="state-aside-card"><div class="state-aside-label">Campus</div><div class="state-aside-value">${allocation.campus_name}</div></div>
+            <div class="state-aside-card"><div class="state-aside-label">Amount</div><div class="state-aside-value">${formatCurrency(25000)}</div></div>
+          </div>
+        </div>
+      </section>
+      <div class="dashboard-panel">
+        <div class="dashboard-panel-kicker">Choose payment method</div>
+        <h3>Complete your fee transaction</h3>
+        <div class="payment-method-grid">
+          <div class="payment-method-card"><strong>UPI</strong><span>Fastest confirmation for mobile-first payments.</span></div>
+          <div class="payment-method-card"><strong>Card</strong><span>Pay using debit or credit card securely.</span></div>
+          <div class="payment-method-card"><strong>Net Banking</strong><span>Complete payment through your bank portal.</span></div>
+          <div class="payment-method-card"><strong>DD</strong><span>Use demand draft if your admission office requires it.</span></div>
+        </div>
+        <div class="form-group">
+          <label for="payment_method">Payment Method</label>
+          <select id="payment_method" class="form-control">
+            <option value="UPI">UPI</option>
+            <option value="Card">Card</option>
+            <option value="Net Banking">Net Banking</option>
+            <option value="DD">DD</option>
+          </select>
+        </div>
+        <div class="page-actions-inline">
+          <button id="pay-btn" class="btn btn-primary" onclick="submitPayment()">Pay Now</button>
+          <a href="allocation.html" class="btn btn-ghost">Back to Allocation</a>
+        </div>
+      </div>`;
+  } catch (error) {
+    showAlert('alert-area', 'error', error.message);
+  }
+}
+
+async function submitPayment() {
+  const btn = document.getElementById('pay-btn');
+  const paymentMethod = document.getElementById('payment_method').value;
+  setLoading(btn, true, 'Processing payment...');
+  try {
+    await apiRequest('POST', `/student/${studentId}/payments`, { payment_method: paymentMethod, amount: 25000 }, true);
+    showAlert('alert-area', 'success', 'Payment recorded successfully.');
+    await renderPaymentPage();
+  } catch (error) {
+    showAlert('alert-area', 'error', error.message);
+  } finally {
+    setLoading(btn, false);
+  }
+}
+
+renderPaymentPage();
+</script>
+</body>
+</html>

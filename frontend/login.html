@@ -1,0 +1,73 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Login | SRM Admission Portal</title>
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+<nav class="navbar"><div class="nav-inner">
+  <a href="index.html" class="nav-logo"><div class="nav-logo-icon">SRM</div><div class="nav-logo-text">SRM<span>IST</span><span class="nav-logo-sub">Admission Portal</span></div></a>
+  <div class="nav-actions" id="nav-auth-area"></div>
+</div></nav>
+
+<div class="register-page">
+  <div class="register-card" style="max-width:520px">
+    <h1 class="auth-title">Login to continue</h1>
+    <p class="auth-subtitle">Use the email and password from registration.</p>
+    <div id="alert-area" class="hidden"></div>
+
+    <form id="login-form">
+      <div class="form-group">
+        <label for="email">Email *</label>
+        <input id="email" class="form-control" type="email" required />
+      </div>
+
+      <div class="form-group">
+        <label for="password">Password *</label>
+        <input id="password" class="form-control" type="password" required />
+      </div>
+
+      <button id="login-btn" type="submit" class="btn btn-primary btn-full">Login</button>
+      <p class="auth-switch">Need an account? <a href="register.html">Create one</a>.</p>
+    </form>
+  </div>
+</div>
+
+<script src="js/script.js"></script>
+<script>
+async function handleLogin(event) {
+  if (event) {
+    event.preventDefault();
+  }
+
+  const btn = document.getElementById('login-btn');
+  clearAlert('alert-area');
+
+  const email = document.getElementById('email').value.trim();
+  const password = document.getElementById('password').value;
+
+  if (!email || !password) {
+    showAlert('alert-area', 'error', 'Email and password are required.');
+    return;
+  }
+
+  setLoading(btn, true, 'Signing in...');
+  try {
+    const data = await apiRequest('POST', '/login', { email, password });
+    Auth.save('session', data);
+    showAlert('alert-area', 'success', `Welcome back, ${data?.Name || email}. Redirecting...`);
+    window.location.href = 'dashboard.html';
+  } catch (error) {
+    showAlert('alert-area', 'error', error.message);
+  } finally {
+    setLoading(btn, false);
+  }
+}
+
+document.getElementById('login-form').addEventListener('submit', handleLogin);
+</script>
+</body>
+</html>
+

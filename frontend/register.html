@@ -1,0 +1,155 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Register | SRM Admission Portal</title>
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+<nav class="navbar"><div class="nav-inner">
+  <a href="index.html" class="nav-logo"><div class="nav-logo-icon">SRM</div><div class="nav-logo-text">SRM<span>IST</span><span class="nav-logo-sub">Admission Portal</span></div></a>
+  <div class="nav-actions" id="nav-auth-area"></div>
+</div></nav>
+
+<div class="register-page">
+  <div class="register-card">
+    <h1 class="auth-title">Create your application</h1>
+    <p class="auth-subtitle">Use your email and password to register. We’ll use this for login later.</p>
+    <div id="alert-area" class="hidden"></div>
+
+    <form id="register-form" novalidate>
+      <div class="form-row">
+        <div class="form-group">
+          <label for="full_name">Full Name *</label>
+          <input id="full_name" class="form-control" type="text" required />
+        </div>
+        <div class="form-group">
+          <label for="email">Email *</label>
+          <input id="email" class="form-control" type="email" required />
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label for="password">Password *</label>
+          <input id="password" class="form-control" type="password" minlength="6" required />
+        </div>
+        <div class="form-group">
+          <label for="phone">Phone *</label>
+          <input id="phone" class="form-control" type="tel" required />
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label for="date_of_birth">Date of Birth *</label>
+          <input id="date_of_birth" class="form-control" type="date" required />
+        </div>
+        <div class="form-group">
+          <label for="gender">Gender</label>
+          <select id="gender" class="form-control">
+            <option value="U">Prefer not to say</option>
+            <option value="M">Male</option>
+            <option value="F">Female</option>
+            <option value="O">Other</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label for="city">City</label>
+          <input id="city" class="form-control" type="text" />
+        </div>
+        <div class="form-group">
+          <label for="state">State</label>
+          <input id="state" class="form-control" type="text" />
+        </div>
+        <div class="form-group">
+          <label for="pincode">Pincode</label>
+          <input id="pincode" class="form-control" type="text" />
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label for="mode">Admission Mode *</label>
+          <select id="mode" class="form-control">
+            <option value="DIRECT">Direct Admission</option>
+            <option value="SRMJEEE">SRMJEEE</option>
+          </select>
+        </div>
+      </div>
+
+      <button id="submit-btn" type="submit" class="btn btn-primary btn-full">Submit Application</button>
+      <p class="auth-switch">Already registered? <a href="login.html">Login here</a>.</p>
+    </form>
+  </div>
+</div>
+
+<script src="js/script.js"></script>
+<script>
+async function handleRegister(event) {
+  if (event) {
+    event.preventDefault();
+  }
+
+  const form = document.getElementById('register-form');
+  const btn = document.getElementById('submit-btn');
+  clearAlert('alert-area');
+
+  if (!form.checkValidity()) {
+    form.reportValidity();
+    showAlert('alert-area', 'error', 'Please fill all required fields correctly.');
+    return;
+  }
+
+  if (typeof apiRequest !== 'function') {
+    showAlert('alert-area', 'error', 'Page script did not load correctly. Refresh and try again.');
+    return;
+  }
+
+  const payload = {
+    name: document.getElementById('full_name').value.trim(),
+    email: document.getElementById('email').value.trim(),
+    password: document.getElementById('password').value,
+    phone: document.getElementById('phone').value.trim(),
+    dob: document.getElementById('date_of_birth').value || null,
+    gender: document.getElementById('gender').value,
+    city: document.getElementById('city').value.trim(),
+    street: document.getElementById('state').value.trim(),
+    zip: document.getElementById('pincode').value.trim(),
+    mode: document.getElementById('mode').value
+  };
+
+  if (!payload.name || !payload.email || !payload.phone || !payload.dob || !payload.password || !payload.mode) {
+    showAlert('alert-area', 'error', 'Name, email, phone, date of birth, password, and admission mode are required.');
+    return;
+  }
+
+  setLoading(btn, true, 'Submitting...');
+  try {
+    const data = await apiRequest('POST', '/register', payload);
+    const registeredStudent = data || {};
+    showAlert(
+      'alert-area',
+      'success',
+      `Application created for ${registeredStudent.Name || payload.name}. Your student ID is ${registeredStudent.Std_ID}. Please log in next.`
+    );
+  } catch (error) {
+    showAlert('alert-area', 'error', error.message);
+  } finally {
+    setLoading(btn, false);
+  }
+}
+
+document.getElementById('register-form').addEventListener('submit', handleRegister);
+
+window.addEventListener('error', (event) => {
+  showAlert('alert-area', 'error', event.message || 'Unexpected page error occurred.');
+});
+</script>
+</body>
+</html>
+
